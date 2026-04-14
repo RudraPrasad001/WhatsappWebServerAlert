@@ -1,11 +1,18 @@
-# Minecraft Server WhatsApp Bot
+# Minecraft Server WhatsApp Assistant
 
-A lightweight WhatsApp bot that automatically monitors your Minecraft server and alerts a WhatsApp Group / Chat when it goes offline or comes back online.
+A lightweight WhatsApp bot and server assistant that automatically monitors your Minecraft server, sends real-time alerts to your group chat, and provides on-demand player stats right from your phone. 
 
 ## Features
-* **Automated Alerts:** Checks the server every 5 minutes and sends a message to the group/chat if the status changes (UP/DOWN).
-* **On-Demand Status:** Group/Chat members can send `!status` to instantly get the current player count and server version.
-* **Flexible Hosting:** Can be deployed on any serverless platform (like Render, Netlify, Railway) or run on a traditional VPS.
+* **Automated Server Monitoring:** Checks the server every 5 minutes and sends an alert to the group if the status changes (UP/DOWN).
+* **Interactive Chat Commands:** Group members can interact with the bot to get live server statistics and player rosters.
+* **Serverless & Flexible:** Can be deployed on any serverless platform (like Render, Netlify, Vercel) or run on a traditional VPS.
+* **Extensible:** Built to easily accommodate new features, commands, and server management tools.
+
+## Commands
+The bot currently supports the following commands in the WhatsApp group:
+* `!status` - Instantly check if the server is online and see the current player capacity.
+* `!players` - Get a live, formatted list of the usernames currently playing on the server.
+* `!help` - Displays the command menu.
 
 ## Tech Stack
 * **Hosting / Cron:** Any platform that can host Node.js API routes and trigger a 5-minute background Cron Job.
@@ -45,8 +52,8 @@ Ensure you have a Redis database accessible via a REST API (such as Upstash). Ad
 2. Set up a Cron Job (using your provider's native tools, or a free service like cron-job.org) to ping the `/api/cron` endpoint of your hosted app every 5 minutes.
 
 ### 4. Webhook Configuration (Green-API)
-To enable the `!status` command, configure your Green-API instance to forward webhooks to `https://<your-hosted-domain>/api/webhook`. Ensure it is set to receive notifications for incoming messages (and optionally, outgoing messages if you want the bot to reply to your own commands).
+To enable the interactive commands, configure your Green-API instance to forward webhooks to `https://<your-hosted-domain>/api/webhook`. Ensure it is set to receive notifications for incoming messages (and optionally, outgoing messages if you want the bot to reply to your own commands).
 
 ## Testing
-* Type `!status` in your WhatsApp group/chat.
+* Type `!help` or `!players` in your WhatsApp group to test the interactive commands.
 * Turn your server off, wait for the cron job to run (or manually visit `https://<your-hosted-domain>/api/cron`), and watch for the offline alert!
