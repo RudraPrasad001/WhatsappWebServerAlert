@@ -103,5 +103,30 @@ export default async function handler(req, res) {
         }
     }
 
+    if (textMessage === "!ip") {
+    const mcIp = process.env.MC_SERVER_IP;
+    const mcPort = process.env.MC_SERVER_PORT;
+    const helpMessage = `🤖 *Minecraft Server IP Address*\n\n`+`*IP* - ${mcIp}:${mcPort}\n`
+
+    const greenApiUrl = `https://api.green-api.com/waInstance${process.env.GREEN_API_ID}/sendMessage/${process.env.GREEN_API_TOKEN}`;
+    
+    try {
+        await fetch(greenApiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chatId: process.env.TARGET_GROUP_ID,
+                message: helpMessage
+            })
+        });
+
+        return res.status(200).json({ success: true });
+
+    } catch (error) {
+        console.error("Error sending help message:", error);
+        return res.status(500).json({ error: 'Failed to send help menu' });
+        }
+    }
+
     res.status(200).send('OK');
 }
