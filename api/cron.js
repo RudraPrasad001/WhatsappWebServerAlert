@@ -30,18 +30,29 @@ export default async function handler(req, res) {
         currentStatus = false;
     }
 
-    // --- 1. Server UP and DOWN Alert ---
+    // --- 1. Server UP and DOWN Alert (Two-Strike System) ---
     const previousStatus = await redis.get('isServerUp');
-    const stateChanged = currentStatus !== previousStatus;
+    let failedAttempts = parseInt(await redis.get('failedAttempts')) || 0;
 
-    if (stateChanged) {
-        if (currentStatus) {
+    if (currentStatus) {
+        // Ping succeeded: Alert if it was previously offline, and reset strikes
+        if (previousStatus === false || previousStatus === null) {
             await sendWhatsAppMessage(GROUP_ID, `✅ *Minecraft Server Alert*\nThe server is now ONLINE! Connect via ${MC_IP}:${MC_PORT}`);
-        } else if (previousStatus !== null) { 
-            await sendWhatsAppMessage(GROUP_ID, `❌ *Minecraft Server Alert*\nThe server just went OFFLINE.`);
+            await redis.set('isServerUp', true);
         }
-        
-        await redis.set('isServerUp', currentStatus);
+        if (failedAttempts > 0) {
+            await redis.set('failedAttempts', 0);
+        }
+    } else {
+        // Ping failed: Add a strike
+        failedAttempts += 1;
+        await redis.set('failedAttempts', failedAttempts);
+
+        // Strike Two: Only alert OFFLINE if it fails twice in a row
+        if (failedAttempts === 2 && previousStatus !== false) {
+            await sendWhatsAppMessage(GROUP_ID, `❌ *Minecraft Server Alert*\nThe server is OFFLINE or unresponsive.`);
+            await redis.set('isServerUp', false);
+        }
     }
 
     // --- 2. Player Joined / Left Alert ---
