@@ -31,7 +31,7 @@ export default async function handler(req, res) {
         failedAttempts += 1;
         await redis.set('failedAttempts', failedAttempts);
 
-        if (failedAttempts === 2 && previousStatus !== false) {
+        if (failedAttempts === 5 && previousStatus !== false) {
             await sendWhatsAppMessage(GROUP_ID, `❌ *Minecraft Server Alert*\nThe server is OFFLINE or unresponsive.`);
             await redis.set('isServerUp', false);
         }
