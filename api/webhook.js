@@ -119,7 +119,13 @@ export default async function handler(req, res) {
         }
     }
 
-    if (textMessage === '!activity off') {
+    const ACTIVITY_PASSPHRASE = 'tung tung tung sahur';
+
+    if (textMessage === '!activity off' || textMessage.startsWith('!activity off ')) {
+        if (textMessage !== `!activity off ${ACTIVITY_PASSPHRASE}`) {
+            await sendWhatsAppMessage(GROUP_ID, "🔒 *Access Denied.*\nThis command requires a passphrase.\nUsage: `!activity off <passphrase>`");
+            return res.status(200).json({ success: true });
+        }
         try {
             await redis.set('alerts_player_activity', false);
             await sendWhatsAppMessage(GROUP_ID, "🔕 *Player Activity Alerts MUTED.*\nI will no longer announce when people join or leave. (Server crashes will still be reported).");
@@ -130,7 +136,11 @@ export default async function handler(req, res) {
         }
     }
 
-    if (textMessage === '!activity on') {
+    if (textMessage === '!activity on' || textMessage.startsWith('!activity on ')) {
+        if (textMessage !== `!activity on ${ACTIVITY_PASSPHRASE}`) {
+            await sendWhatsAppMessage(GROUP_ID, "🔒 *Access Denied.*\nThis command requires a passphrase.\nUsage: `!activity on <passphrase>`");
+            return res.status(200).json({ success: true });
+        }
         try {
             await redis.set('alerts_player_activity', true);
             await sendWhatsAppMessage(GROUP_ID, "🔔 *Player Activity Alerts UNMUTED.*\nI will now announce when people join and leave the server.");
